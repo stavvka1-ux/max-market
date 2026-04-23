@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Рынок MAX-ботов — Полный отчёт</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06090f;
+  --surface: #0d1117;
+  --surface2: #151b27;
+  --surface3: #1a2233;
+  --border: #1e2d45;
+  --border2: #253350;
+  --text: #e2e8f0;
+  --text2: #8b9dc3;
+  --text3: #5a6f8f;
+  --accent: #3b82f6;
+  --accent2: #06b6d4;
+  --green: #10b981;
+  --orange: #f59e0b;
+  --red: #ef4444;
+  --pink: #ec4899;
+  --purple: #8b5cf6;
+  --indigo: #6366f1;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Onest', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 1360px; margin: 0 auto; padding: 48px 28px; }
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 64px;
+  position: relative;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -160px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(99,102,241,0.07) 0%, rgba(59,130,246,0.04) 40%, transparent 70%);
+  pointer-events: none;
+}
+.badge-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.18);
+  border-radius: 999px; padding: 6px 16px;
+  font-size: 12px; color: var(--accent); font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+.badge.purple { background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.18); color: var(--purple); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+h1 {
+  font-size: clamp(32px, 4.5vw, 56px); font-weight: 800;
+  letter-spacing: -1.5px; margin-bottom: 16px;
+  background: linear-gradient(135deg, #fff 0%, #a5b4c8 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.subtitle { font-size: 17px; color: var(--text2); max-width: 700px; margin: 0 auto; line-height: 1.7; }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; justify-content: center; gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 5px;
+  margin-bottom: 48px;
+  width: fit-content; margin-left: auto; margin-right: auto;
+}
+.tab {
+  padding: 12px 28px; border-radius: 10px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.25s;
+  color: var(--text2); border: none; background: transparent;
+  letter-spacing: 0.2px;
+}
+.tab:hover { color: var(--text); background: var(--surface2); }
+.tab.active {
+  background: var(--accent); color: #fff;
+  box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── KPI row ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: 44px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  position: relative; overflow: hidden;
+}
+.kpi::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.kpi .label { font-size: 11px; color: var(--text3); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+.kpi .value { font-size: 30px; font-weight: 700; letter-spacing: -1px; }
+.kpi .note { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.kpi .value.blue { color: var(--accent); }
+.kpi .value.green { color: var(--green); }
+.kpi .value.orange { color: var(--orange); }
+.kpi .value.purple { color: var(--purple); }
+.kpi .value.pink { color: var(--pink); }
+.kpi .value.cyan { color: var(--accent2); }
+
+/* ── Sections ── */
+.section { margin-bottom: 52px; }
+.section-title {
+  font-size: 19px; font-weight: 700; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title .icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 18px;
+}
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.chart-card h3 {
+  font-size: 13px; font-weight: 600; margin-bottom: 14px;
+  color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.chart-card.full { grid-column: 1 / -1; }
+
+/* ── Table ── */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.table-wrap.scrollable { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { background: var(--surface2); }
+th { padding: 12px 16px; text-align: left; font-weight: 600; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
+td { padding: 12px 16px; border-top: 1px solid var(--border); vertical-align: top; }
+tr:hover td { background: rgba(59,130,246,0.03); }
+.price-tag {
+  display: inline-block;
+  background: rgba(16,185,129,0.1); color: var(--green);
+  padding: 2px 10px; border-radius: 6px; font-weight: 600;
+  font-size: 13px; white-space: nowrap;
+}
+.seller-name { color: var(--accent); font-weight: 500; }
+.truncate { max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+td a { color: var(--accent2); text-decoration: none; font-weight: 500; }
+td a:hover { text-decoration: underline; }
+
+/* ── Insight cards ── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  margin-bottom: 40px;
+}
+.insight {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+.insight .tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+  padding: 3px 10px; border-radius: 6px; margin-bottom: 10px;
+}
+.insight .tag.finding { background: rgba(59,130,246,0.12); color: var(--accent); }
+.insight .tag.warning { background: rgba(245,158,11,0.12); color: var(--orange); }
+.insight .tag.opportunity { background: rgba(16,185,129,0.12); color: var(--green); }
+.insight .tag.trend { background: rgba(139,92,246,0.12); color: var(--purple); }
+.insight h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.insight p { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+/* ── Conclusions ── */
+.conclusions {
+  background: linear-gradient(135deg, rgba(99,102,241,0.04) 0%, rgba(139,92,246,0.04) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-top: 48px;
+}
+.conclusions h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+.conclusion-item { display: flex; gap: 14px; margin-bottom: 14px; }
+.conclusion-item .num {
+  width: 26px; height: 26px; min-width: 26px;
+  border-radius: 7px; background: rgba(59,130,246,0.12);
+  color: var(--accent); font-weight: 700; font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+}
+.conclusion-item p { font-size: 14px; color: var(--text2); line-height: 1.65; }
+.conclusion-item strong { color: var(--text); }
+
+/* ── Comparison bar ── */
+.compare-bar {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 18px; margin-bottom: 40px;
+}
+.compare-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  position: relative; overflow: hidden;
+}
+.compare-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.compare-card.indie::before { background: linear-gradient(90deg, var(--accent2), var(--green)); }
+.compare-card.studio::before { background: linear-gradient(90deg, var(--purple), var(--pink)); }
+.compare-card .emoji { font-size: 28px; margin-bottom: 12px; }
+.compare-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.compare-card .desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.compare-card .stat-row { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+.compare-card .stat-item .sl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+.compare-card .stat-item .sv { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+
+/* ── Spec matrix ── */
+.matrix-cell { text-align: center; }
+.check { color: var(--green); font-weight: 700; }
+.cross { color: var(--text3); }
+.partial { color: var(--orange); font-weight: 600; }
+
+.footer {
+  text-align: center; margin-top: 56px; padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text3);
+}
+
+@media (max-width: 768px) {
+  .compare-bar { grid-template-columns: 1fr; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .tabs { flex-wrap: wrap; }
+  .tab { padding: 10px 18px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ═══════════ HEADER ═══════════ -->
+<div class="header">
+  <div class="badge-row">
+    <div class="badge"><span class="dot"></span> Данные Авито + Аналитика рынка</div>
+    <div class="badge purple">Апрель 2026</div>
+  </div>
+  <h1>Рынок разработчиков MAX-ботов</h1>
+  <p class="subtitle">Объединённый отчёт: 10 студий заказной разработки, 9 no-code конструкторов и 301 индивидуальный исполнитель с Авито. Индивидуальные разработчики vs Студии разработки.</p>
+</div>
+
+<!-- ═══════════ COMPARISON OVERVIEW ═══════════ -->
+<div class="compare-bar">
+  <div class="compare-card indie">
+    <div class="emoji">👨‍💻</div>
+    <h3>Индивидуальные разработчики</h3>
+    <div class="desc">Фрилансеры и частные специалисты с Авито. 301 уникальный исполнитель, медианная цена 3 000 ₽. Основной инструмент — no-code конструкторы, 15% делают кастомную разработку.</div>
+    <div class="stat-row">
+      <div class="stat-item"><div class="sl">Исполнителей</div><div class="sv" style="color:var(--accent2)">301</div></div>
+      <div class="stat-item"><div class="sl">Медиана цены</div><div class="sv" style="color:var(--green)">3 000 ₽</div></div>
+      <div class="stat-item"><div class="sl">Средняя цена</div><div class="sv" style="color:var(--orange)">7 202 ₽</div></div>
+      <div class="stat-item"><div class="sl">Городов</div><div class="sv" style="color:var(--accent)">20+</div></div>
+    </div>
+  </div>
+  <div class="compare-card studio">
+    <div class="emoji">🏢</div>
+    <h3>Студии разработки</h3>
+    <div class="desc">Компании заказной разработки и no-code платформы. 10 студий + 9 конструкторов. Цены от 50 000 ₽ (заказная) и от 990 ₽/мес (конструкторы). Полный цикл: CRM, ERP, AI.</div>
+    <div class="stat-row">
+      <div class="stat-item"><div class="sl">Студий</div><div class="sv" style="color:var(--purple)">10</div></div>
+      <div class="stat-item"><div class="sl">Конструкторов</div><div class="sv" style="color:var(--pink)">9</div></div>
+      <div class="stat-item"><div class="sl">Заказная от</div><div class="sv" style="color:var(--green)">50к ₽</div></div>
+      <div class="stat-item"><div class="sl">Средняя</div><div class="sv" style="color:var(--orange)">~300к ₽</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TABS ═══════════ -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('overview')">Обзор рынка</button>
+  <button class="tab" onclick="switchTab('indie')">Индивидуальные</button>
+  <button class="tab" onclick="switchTab('studios')">Студии</button>
+  <button class="tab" onclick="switchTab('nocode')">No-code</button>
+  <button class="tab" onclick="switchTab('maxonly')" style="border:1px solid rgba(16,185,129,0.3)">🟢 Только MAX</button>
+</div>
+
+<!-- ═══════════ TAB: OVERVIEW ═══════════ -->
+<div id="panel-overview" class="tab-panel active">
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi" style="--c:var(--accent)"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)"></div><div class="label">Всего игроков</div><div class="value blue">320+</div><div class="note">301 инди + 10 студий + 9 конструкторов</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)"></div><div class="label">Разброс цен</div><div class="value green">999 — 500к ₽</div><div class="note">Фриланс vs. заказная разработка</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)"></div><div class="label">Аудитория MAX</div><div class="value orange">85 млн</div><div class="note">Предустановка с сентября 2025</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--purple)"></div><div class="label">API бесплатен</div><div class="value purple">до 2027</div><div class="note">Коммерциализация позже</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--pink)"></div><div class="label">Публикация</div><div class="value pink">Юрлица</div><div class="note">Только верифицированные ООО/АО РФ</div></div>
+  </div>
+
+  <!-- Price comparison chart -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(99,102,241,0.12)">⚖️</span> Сравнение ценовых сегментов</div>
+    <div class="chart-grid">
+      <div class="chart-card full">
+        <h3>Индивидуальные vs Студии: ценовые диапазоны (₽)</h3>
+        <canvas id="priceCompareChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Market structure -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(16,185,129,0.12)">🧩</span> Структура рынка</div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Распределение по типу исполнителей</h3>
+        <canvas id="marketStructureChart" height="280"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Индивидуальные: категории услуг (Авито)</h3>
+        <canvas id="indieCategoryChart" height="280"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key insights -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(59,130,246,0.12)">💡</span> Ключевые находки</div>
+    <div class="insights-grid">
+      <div class="insight">
+        <span class="tag finding">Структура</span>
+        <h4>Двухуровневый рынок</h4>
+        <p>Рынок чётко делится на два уровня: массовый фриланс (медиана 3 000 ₽, конструкторные боты) и премиум-студии (от 50 000 ₽, кастомная разработка с CRM/ERP/AI). Между ними — пустота.</p>
+      </div>
+      <div class="insight">
+        <span class="tag trend">Тренд</span>
+        <h4>MAX ≈ надстройка над Telegram</h4>
+        <p>58% объявлений на Авито одновременно упоминают Telegram. Студии тоже предлагают «перенос из Telegram». Чистых MAX-специалистов менее 10% рынка.</p>
+      </div>
+      <div class="insight">
+        <span class="tag warning">Разрыв</span>
+        <h4>Цена × 100 между сегментами</h4>
+        <p>Инди-разработчик на Авито: 3 000 ₽ за бота на конструкторе. Студия «под ключ»: ~300 000 ₽ с CRM, 1С и AI. Разница в 100 раз при внешне одинаковом «создам бота для MAX».</p>
+      </div>
+      <div class="insight">
+        <span class="tag opportunity">Возможность</span>
+        <h4>Миграция Telegram → MAX</h4>
+        <p>Самая маржинальная ниша среди инди: медиана 7 500 ₽. Студии берут за это 40 000–100 000 ₽. С обязательной предустановкой MAX спрос будет только расти.</p>
+      </div>
+      <div class="insight">
+        <span class="tag trend">AI-сегмент</span>
+        <h4>ИИ-боты — ×2 к средней цене</h4>
+        <p>Инди: средняя 7 562 ₽ (vs 3 605 ₽ у обычных). Студии: от 200 000 ₽ за AI-компоненты (Pandora Research, ChatLabs). Премиум по обоим каналам.</p>
+      </div>
+      <div class="insight">
+        <span class="tag finding">Регуляторика</span>
+        <h4>Юрлицо обязательно</h4>
+        <p>С августа 2025 публикация ботов — только для верифицированных юрлиц РФ. Это создаёт барьер для инди, но выгоду для студий, которые выступают подрядчиком.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conclusions -->
+  <div class="conclusions">
+    <h2>📌 Общие выводы</h2>
+    <div class="conclusion-item"><div class="num">1</div><p><strong>Рынок молодой, но уже сформировался.</strong> 320+ игроков за год после запуска MAX — беспрецедентно быстро. Telegram развивал такую экосистему годами.</p></div>
+    <div class="conclusion-item"><div class="num">2</div><p><strong>Два мира, одна платформа.</strong> Инди-фрилансеры конкурируют ценой (от 999 ₽), студии — экспертизой (CRM, ERP, AI, «под ключ»). Пересечения почти нет.</p></div>
+    <div class="conclusion-item"><div class="num">3</div><p><strong>No-code — связующее звено.</strong> Конструкторы (Smartbot, BotHelp, Salebot) используют и инди, и бизнес. Подписка от 990 ₽/мес делает их доступными для всех.</p></div>
+    <div class="conclusion-item"><div class="num">4</div><p><strong>Лучшие ниши для входа:</strong> миграция из Telegram (высокая медиана), Mini App (мало конкурентов), AI-интеграции (×2 к средней цене), региональная специализация (регионы недозаняты).</p></div>
+    <div class="conclusion-item"><div class="num">5</div><p><strong>API бесплатен до 2027 г.</strong> Это окно возможностей для разработчиков. После коммерциализации порог входа вырастет, а позиции тех, кто занял рынок сейчас, укрепятся.</p></div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: INDIE ═══════════ -->
+<div id="panel-indie" class="tab-panel">
+
+  <div class="kpi-row">
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)"></div><div class="label">Объявлений</div><div class="value blue">1 200</div><div class="note">301 уникальных</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)"></div><div class="label">Медиана цены</div><div class="value green">3 000 ₽</div><div class="note">Средняя: 7 202 ₽</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)"></div><div class="label">Диапазон</div><div class="value orange">1 — 150к ₽</div><div class="note">75% до 7 000 ₽</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--purple)"></div><div class="label">Городов</div><div class="value purple">20+</div><div class="note">Москва — 25%</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--pink)"></div><div class="label">Упоминают MAX</div><div class="value pink">67%</div><div class="note">808 из 1 200</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(59,130,246,0.12)">📊</span> Данные Авито</div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Распределение цен</h3>
+        <canvas id="indiePriceChart" height="260"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Топ-15 городов</h3>
+        <canvas id="indieCityChart" height="260"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Упоминания платформ</h3>
+        <canvas id="indiePlatformChart" height="260"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Медиана цены по категориям</h3>
+        <canvas id="indiePriceCatChart" height="260"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insights -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(16,185,129,0.12)">💡</span> Характеристика сегмента</div>
+    <div class="insights-grid">
+      <div class="insight">
+        <span class="tag finding">Профиль</span>
+        <h4>Конструкторный рынок</h4>
+        <p>Медиана 3 000 ₽ — это рынок конструкторов. Основная масса инди используют BotHelp, Salebot и аналоги. Кастомная разработка на API (от 15 000 ₽) составляет менее 15%.</p>
+      </div>
+      <div class="insight">
+        <span class="tag warning">Конкуренция</span>
+        <h4>Мультигео-дублирование</h4>
+        <p>Топ-объявления повторяются до 37 раз в разных городах. 1 200 объявлений — это всего 301 уникальный исполнитель. Реальная конкуренция меньше, чем кажется.</p>
+      </div>
+      <div class="insight">
+        <span class="tag opportunity">Ниши</span>
+        <h4>Перенос и Mini App</h4>
+        <p>Перенос из Telegram — медиана 7 500 ₽ (×2.5 от базовой). Mini App — медиана 5 000 ₽, мало конкурентов. ИИ-боты — средняя 7 562 ₽.</p>
+      </div>
+      <div class="insight">
+        <span class="tag trend">География</span>
+        <h4>Москва перенасыщена</h4>
+        <p>Москва — 25% рынка, СПб — 10%. В городах-миллионниках (Краснодар, Нижний Новгород, Уфа) спрос есть, но предложение разрежённое.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top listings table -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(245,158,11,0.12)">🏆</span> Топ-20 объявлений по цене</div>
+    <div class="table-wrap scrollable">
+      <table>
+        <thead><tr><th>#</th><th>Заголовок</th><th>Цена</th><th>Продавец</th><th>Город</th></tr></thead>
+        <tbody id="indieTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: STUDIOS ═══════════ -->
+<div id="panel-studios" class="tab-panel">
+
+  <div class="kpi-row">
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--purple)"></div><div class="label">Студий</div><div class="value purple">10</div><div class="note">Заказная разработка</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)"></div><div class="label">Мин. цена</div><div class="value green">50 000 ₽</div><div class="note">Простой бот</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)"></div><div class="label">Средняя</div><div class="value orange">~300к ₽</div><div class="note">С CRM-интеграцией</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)"></div><div class="label">Макс. цена</div><div class="value blue">500к+ ₽</div><div class="note">AI + ERP + Mini App</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent2)"></div><div class="label">Технологии</div><div class="value cyan">TS/Go/Py</div><div class="note">MAX Bot API</div></div>
+  </div>
+
+  <!-- Studios chart -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(139,92,246,0.12)">📊</span> Ценовой анализ студий</div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Стоимость разработки по сложности</h3>
+        <canvas id="studiosPriceChart" height="260"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Специализация студий</h3>
+        <canvas id="studiosSpecChart" height="260"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Studios table -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(139,92,246,0.12)">🏢</span> Каталог студий заказной разработки</div>
+    <div class="table-wrap scrollable">
+      <table>
+        <thead><tr><th>Компания</th><th>Специализация</th><th>Ценовой сегмент</th><th>Сайт</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ChatLabs</strong></td><td>Боты и Mini Apps, полный цикл</td><td><span class="price-tag">~300 000 ₽</span></td><td><a href="https://chatlabs.ru">chatlabs.ru</a></td></tr>
+          <tr><td><strong>DD Planet</strong></td><td>Боты, Mini Apps, перенос из Telegram, CRM, ERP</td><td><span class="price-tag">от 100 000 ₽</span></td><td><a href="https://www.ddplanet.ru/services/chatbot-max/">ddplanet.ru</a></td></tr>
+          <tr><td><strong>Bleaksoft</strong></td><td>От автоответчиков до сложных интеграций: CRM, 1С, платёжные шлюзы</td><td><span class="price-tag">от 100 000 ₽</span></td><td><a href="https://bleaksoft.ru/pages/razrabotka-chat-botov-max">bleaksoft.ru</a></td></tr>
+          <tr><td><strong>Синвеб</strong></td><td>Бот на сервере клиента. Интеграция с Госуслугами</td><td><span class="price-tag">от 150 000 ₽</span></td><td><a href="https://synweb.ru/razrabotka-bota-max">synweb.ru</a></td></tr>
+          <tr><td><strong>Pandora Research</strong></td><td>CRM, 1С, ИИ-компоненты</td><td><span class="price-tag">50–500к ₽</span></td><td><a href="https://pandoraresearch.ru/services/max">pandoraresearch.ru</a></td></tr>
+          <tr><td><strong>Pelid Team</strong></td><td>Кастомные боты с анализом бизнес-процессов</td><td><span class="price-tag">от 100 000 ₽</span></td><td><a href="https://pelidteam.ru/chat-bot-max">pelidteam.ru</a></td></tr>
+          <tr><td><strong>Maxcraft</strong></td><td>Специализация на MAX: продажи, заявки, CRM, оплаты</td><td><span class="price-tag">от 50 000 ₽</span></td><td><a href="https://maxcraft.app">maxcraft.app</a></td></tr>
+          <tr><td><strong>AppAndBot</strong></td><td>Эквайринг, 24/7 поддержка, геймификация, миграция из Telegram</td><td><span class="price-tag">от 100 000 ₽</span></td><td><a href="https://appandbot.ru">appandbot.ru</a></td></tr>
+          <tr><td><strong>Cetera</strong></td><td>FAQ-боты, автоподтверждение, онбординг</td><td><span class="price-tag">от 80 000 ₽</span></td><td><a href="https://cetera.ru/messenger/max-bot/">cetera.ru</a></td></tr>
+          <tr><td><strong>Вебформат</strong></td><td>Опыт Telegram, одни из первых на MAX</td><td><span class="price-tag">от 50 000 ₽</span></td><td><a href="https://www.webformat.ru">webformat.ru</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recommendations -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(245,158,11,0.12)">🎯</span> Рекомендации по выбору студии</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Задача</th><th>Рекомендация</th><th>Обоснование</th></tr></thead>
+        <tbody>
+          <tr><td>Сложный бот с интеграциями</td><td><strong>ChatLabs, DD Planet</strong></td><td>Глубокая специализация, портфолио, полный цикл</td></tr>
+          <tr><td>Бюджетный бот</td><td><strong>Pandora, Maxcraft</strong></td><td>Разработка от 50 тыс. ₽, быстрая оценка</td></tr>
+          <tr><td>Интеграция с Госуслугами</td><td><strong>Синвеб</strong></td><td>Единственная студия с опытом интеграции с Госуслугами</td></tr>
+          <tr><td>Миграция из Telegram</td><td><strong>DD Planet, AppAndBot</strong></td><td>Явно заявляют перенос из Telegram в MAX</td></tr>
+          <tr><td>Геймификация / эквайринг</td><td><strong>AppAndBot</strong></td><td>Игровые механики + платёжные интеграции</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: NO-CODE ═══════════ -->
+<div id="panel-nocode" class="tab-panel">
+
+  <div class="kpi-row">
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent2)"></div><div class="label">Платформ</div><div class="value cyan">9</div><div class="note">Конструкторы ботов</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)"></div><div class="label">Мин. подписка</div><div class="value green">990 ₽/мес</div><div class="note">Smartbot, WatBot</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)"></div><div class="label">Макс. подписка</div><div class="value orange">2 899 ₽/мес</div><div class="note">Botmother</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--purple)"></div><div class="label">Шаблонов</div><div class="value purple">70+</div><div class="note">BotHelp</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--pink)"></div><div class="label">Макс. каналов</div><div class="value pink">12</div><div class="note">Salebot</div></div>
+  </div>
+
+  <!-- Nocode chart -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(6,182,212,0.12)">📊</span> Сравнение подписок</div>
+    <div class="chart-grid">
+      <div class="chart-card full">
+        <h3>Стоимость подписок no-code конструкторов (₽/мес)</h3>
+        <canvas id="nocodePriceChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nocode table -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(6,182,212,0.12)">🛠️</span> Каталог no-code конструкторов</div>
+    <div class="table-wrap scrollable">
+      <table>
+        <thead><tr><th>Платформа</th><th>Цена</th><th>Особенности</th><th>Сайт</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Smartbot (KTS)</strong></td><td><span class="price-tag">от 990 ₽/мес</span></td><td>Официальный партнёр MAX. ИИ, шаблоны, разработка под ключ</td><td><a href="https://www.smartbotpro.ru">smartbotpro.ru</a></td></tr>
+          <tr><td><strong>BotHelp</strong></td><td><span class="price-tag">от 1 599 ₽/мес</span></td><td>70+ шаблонов, AI-агенты, создание за 5–15 мин</td><td><a href="https://bothelp.io/ru/max">bothelp.io</a></td></tr>
+          <tr><td><strong>Salebot</strong></td><td><span class="price-tag">от 1 990 ₽/мес</span></td><td>12 каналов, встроенная CRM, аналитика продаж</td><td><a href="https://salebot.pro">salebot.pro</a></td></tr>
+          <tr><td><strong>Botmother</strong></td><td><span class="price-tag">от 2 899 ₽/мес</span></td><td>Визуальный конструктор, 8 каналов</td><td><a href="https://botmother.ru/max">botmother.ru</a></td></tr>
+          <tr><td><strong>ChatForma</strong></td><td><span class="price-tag">от 2 000 ₽/мес</span></td><td>Конструктор ботов, галереи товаров</td><td><a href="https://chatforma.com">chatforma.com</a></td></tr>
+          <tr><td><strong>WatBot</strong></td><td><span class="price-tag">от 990 ₽/мес</span></td><td>amoCRM, Битрикс24, ЮKassa, Robokassa</td><td><a href="https://watbot.ru/max">watbot.ru</a></td></tr>
+          <tr><td><strong>IntellectDialog</strong></td><td><span class="price-tag">по запросу</span></td><td>Каскадные рассылки MAX→WhatsApp</td><td><a href="https://intellectdialog.com">intellectdialog.com</a></td></tr>
+          <tr><td><strong>Chat2Desk</strong></td><td><span class="price-tag">по запросу</span></td><td>Подключение MAX без RuStore/МСП.РФ</td><td><a href="https://chat2desk.com/bot-max">chat2desk.com</a></td></tr>
+          <tr><td><strong>Альбато</strong></td><td><span class="price-tag">по запросу</span></td><td>Автоматизация, визуальный редактор сценариев</td><td><a href="https://albato.ru">albato.ru</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Feature matrix -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(139,92,246,0.12)">📋</span> Матрица функциональности</div>
+    <div class="table-wrap scrollable">
+      <table>
+        <thead><tr><th>Платформа</th><th class="matrix-cell">AI</th><th class="matrix-cell">CRM</th><th class="matrix-cell">Рассылки</th><th class="matrix-cell">Шаблоны</th><th class="matrix-cell">Аналитика</th><th class="matrix-cell">Мультиканал</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Smartbot</strong></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="partial">~</span></td></tr>
+          <tr><td><strong>BotHelp</strong></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="partial">~</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td></tr>
+          <tr><td><strong>Salebot</strong></td><td class="matrix-cell"><span class="partial">~</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td></tr>
+          <tr><td><strong>Botmother</strong></td><td class="matrix-cell"><span class="cross">—</span></td><td class="matrix-cell"><span class="partial">~</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="partial">~</span></td><td class="matrix-cell"><span class="check">✓</span></td></tr>
+          <tr><td><strong>ChatForma</strong></td><td class="matrix-cell"><span class="cross">—</span></td><td class="matrix-cell"><span class="partial">~</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="partial">~</span></td><td class="matrix-cell"><span class="partial">~</span></td></tr>
+          <tr><td><strong>WatBot</strong></td><td class="matrix-cell"><span class="cross">—</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="partial">~</span></td><td class="matrix-cell"><span class="partial">~</span></td><td class="matrix-cell"><span class="check">✓</span></td></tr>
+          <tr><td><strong>IntellectDialog</strong></td><td class="matrix-cell"><span class="cross">—</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="cross">—</span></td><td class="matrix-cell"><span class="check">✓</span></td><td class="matrix-cell"><span class="check">✓</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Nocode recommendations -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(16,185,129,0.12)">🎯</span> Когда выбрать конструктор</div>
+    <div class="insights-grid">
+      <div class="insight">
+        <span class="tag opportunity">Быстрый старт</span>
+        <h4>Smartbot + BotHelp</h4>
+        <p>Официальные партнёры MAX. AI-агенты, 70+ шаблонов, запуск за 5–15 минут. Идеально для FAQ, квизов, витрин и лид-генерации.</p>
+      </div>
+      <div class="insight">
+        <span class="tag trend">Омниканальность</span>
+        <h4>Salebot + IntellectDialog</h4>
+        <p>12+ каналов, каскадные рассылки MAX→WhatsApp, встроенная CRM. Для бизнеса с несколькими каналами коммуникации.</p>
+      </div>
+      <div class="insight">
+        <span class="tag finding">Интеграции</span>
+        <h4>WatBot</h4>
+        <p>Глубокая интеграция с amoCRM, Битрикс24, ЮKassa, Robokassa. Для e-commerce и автоматизации продаж.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: ТОЛЬКО MAX ═══════════ -->
+<div id="panel-maxonly" class="tab-panel">
+
+  <div class="kpi-row">
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)"></div><div class="label">Объявлений</div><div class="value green">169</div><div class="note">Только MAX, без Telegram</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent2)"></div><div class="label">Медиана цены</div><div class="value cyan">5 000 ₽</div><div class="note">Средняя: 11 426 ₽</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)"></div><div class="label">Диапазон</div><div class="value orange">0 — 150к ₽</div><div class="note">Выше чем у смешанных</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)"></div><div class="label">MAX + TG</div><div class="value blue">638</div><div class="note">Отфильтрованы</div></div>
+    <div class="kpi"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--purple)"></div><div class="label">Доля «чистых»</div><div class="value purple">14%</div><div class="note">169 из 1 200</div></div>
+  </div>
+
+  <!-- Comparison insight -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(16,185,129,0.12)">🔬</span> Только MAX vs MAX+Telegram</div>
+    <div class="compare-bar">
+      <div class="compare-card" style="border-color:rgba(16,185,129,0.3)">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--green)"></div>
+        <div class="emoji">🟢</div>
+        <h3>Только MAX</h3>
+        <div class="desc">Исполнители, которые работают исключительно с MAX без упоминания Telegram. Более высокая медиана — это осознанная специализация, а не «допродажа».</div>
+        <div class="stat-row">
+          <div class="stat-item"><div class="sl">Объявлений</div><div class="sv" style="color:var(--green)">169</div></div>
+          <div class="stat-item"><div class="sl">Медиана</div><div class="sv" style="color:var(--green)">5 000 ₽</div></div>
+          <div class="stat-item"><div class="sl">Средняя</div><div class="sv" style="color:var(--green)">11 426 ₽</div></div>
+        </div>
+      </div>
+      <div class="compare-card" style="border-color:rgba(59,130,246,0.3)">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)"></div>
+        <div class="emoji">🔵</div>
+        <h3>MAX + Telegram</h3>
+        <div class="desc">Исполнители, предлагающие ботов и для Telegram, и для MAX. Большинство — «портируют» навыки с Telegram, MAX идёт как дополнение.</div>
+        <div class="stat-row">
+          <div class="stat-item"><div class="sl">Объявлений</div><div class="sv" style="color:var(--accent)">638</div></div>
+          <div class="stat-item"><div class="sl">Медиана</div><div class="sv" style="color:var(--accent)">3 000 ₽</div></div>
+          <div class="stat-item"><div class="sl">Средняя</div><div class="sv" style="color:var(--accent)">7 202 ₽</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(16,185,129,0.12)">📊</span> Аналитика «Только MAX»</div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Распределение цен (только MAX)</h3>
+        <canvas id="maxOnlyPriceChart" height="260"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>География (топ-10 городов)</h3>
+        <canvas id="maxOnlyCityChart" height="260"></canvas>
+      </div>
+      <div class="chart-card full">
+        <h3>Сравнение цен: Только MAX vs MAX+Telegram</h3>
+        <canvas id="maxOnlyCompareChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insights -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(16,185,129,0.12)">💡</span> Ключевые находки</div>
+    <div class="insights-grid">
+      <div class="insight">
+        <span class="tag finding">Цена выше</span>
+        <h4>Медиана ×1.7 от смешанных</h4>
+        <p>«Чистые» MAX-специалисты берут дороже: медиана 5 000 ₽ vs 3 000 ₽ у тех, кто предлагает MAX+Telegram. Средняя ещё выше — 11 426 ₽ vs 7 202 ₽.</p>
+      </div>
+      <div class="insight">
+        <span class="tag warning">Редкость</span>
+        <h4>Всего 14% рынка</h4>
+        <p>169 из 1 200 объявлений — только MAX. Остальные 86% так или иначе упоминают Telegram. Чистая MAX-специализация — это пока нишевое позиционирование.</p>
+      </div>
+      <div class="insight">
+        <span class="tag opportunity">Специализация</span>
+        <h4>Продвижение и Mini App</h4>
+        <p>Среди «чистых» MAX-исполнителей заметна доля услуг продвижения каналов MAX и разработки Mini App — услуг, которых нет в Telegram-экосистеме.</p>
+      </div>
+      <div class="insight">
+        <span class="tag trend">Перспектива</span>
+        <h4>Сегмент будет расти</h4>
+        <p>С ростом аудитории MAX (85 млн, предустановка на смартфоны) появится всё больше разработчиков, изначально ориентированных только на MAX.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top listings -->
+  <div class="section">
+    <div class="section-title"><span class="icon" style="background:rgba(245,158,11,0.12)">🏆</span> Топ-20 уникальных объявлений (только MAX)</div>
+    <div class="table-wrap scrollable">
+      <table>
+        <thead><tr><th>#</th><th>Заголовок</th><th>Цена</th><th>Продавец</th><th>Город</th></tr></thead>
+        <tbody id="maxOnlyTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ REGULATORY SECTION (shared) ═══════════ -->
+<div class="section" style="margin-top:20px">
+  <div class="section-title"><span class="icon" style="background:rgba(239,68,68,0.12)">⚠️</span> Регуляторные требования (для всех)</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Требование</th><th>Описание</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Юрлицо</strong></td><td>Публикация ботов — только для верифицированных юрлиц РФ. ИП, самозанятые, физлица и нерезиденты не допускаются.</td></tr>
+        <tr><td><strong>Верификация</strong></td><td>Через Госуслуги или банки-провайдеры. Модерация до 24 часов.</td></tr>
+        <tr><td><strong>API</strong></td><td>platform-api.max.ru. Токен в заголовке Authorization. Бесплатен до 2027 г.</td></tr>
+        <tr><td><strong>Технологии</strong></td><td>Официальные библиотеки: TypeScript/JavaScript, Go. Также Python.</td></tr>
+        <tr><td><strong>Контент</strong></td><td>Запрещены ненормативная лексика, контент 18+ и данные других компаний.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  Источники: Авито (1 200 объявлений, 23.04.2026) • Аналитический отчёт (10 студий, 9 конструкторов, апрель 2026) • dev.max.ru
+</div>
+
+</div>
+
+<script>
+// ── Config ──
+Chart.defaults.color = '#8b9dc3';
+Chart.defaults.borderColor = 'rgba(30,45,69,0.4)';
+Chart.defaults.font.family = 'Onest, sans-serif';
+const C = ['#3b82f6','#06b6d4','#10b981','#f59e0b','#ef4444','#ec4899','#8b5cf6','#6366f1','#14b8a6','#84cc16','#f97316','#a855f7','#22d3ee','#fb923c','#4ade80'];
+const gridColor = 'rgba(30,45,69,0.3)';
+
+// ── Tab switching ──
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+  // Lazy init charts
+  if (id === 'indie' && !window._indieInit) { initIndieCharts(); window._indieInit = true; }
+  if (id === 'studios' && !window._studioInit) { initStudioCharts(); window._studioInit = true; }
+  if (id === 'nocode' && !window._nocodeInit) { initNocodeCharts(); window._nocodeInit = true; }
+  if (id === 'maxonly' && !window._maxonlyInit) { initMaxOnlyCharts(); window._maxonlyInit = true; }
+}
+
+// ═══ OVERVIEW CHARTS ═══
+// Price comparison: indie vs studios
+new Chart(document.getElementById('priceCompareChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Простой бот', 'Средний (CRM)', 'Сложный (AI+ERP)', 'Mini App', 'Миграция TG→MAX'],
+    datasets: [
+      {
+        label: 'Инди (Авито)',
+        data: [3000, 7000, 15000, 5000, 7500],
+        backgroundColor: '#06b6d499', borderColor: '#06b6d4', borderWidth: 1.5, borderRadius: 6,
+      },
+      {
+        label: 'Студии (заказная)',
+        data: [50000, 200000, 500000, 150000, 100000],
+        backgroundColor: '#8b5cf699', borderColor: '#8b5cf6', borderWidth: 1.5, borderRadius: 6,
+      }
+    ]
+  },
+  options: {
+    plugins: { legend: { labels: { boxWidth: 12, padding: 16, font: { size: 12 } } } },
+    scales: {
+      y: { type: 'logarithmic', grid: { color: gridColor }, ticks: { font: { size: 11 }, callback: v => v >= 1000 ? (v/1000)+'к' : v } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// Market structure doughnut
+new Chart(document.getElementById('marketStructureChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Инди-фрилансеры (Авито)', 'Студии заказной разработки', 'No-code конструкторы'],
+    datasets: [{
+      data: [301, 10, 9],
+      backgroundColor: ['#06b6d4','#8b5cf6','#ec4899'],
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    cutout: '58%',
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14, font: { size: 12 } } } }
+  }
+});
+
+// Indie category (from avito data)
+new Chart(document.getElementById('indieCategoryChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Чат-боты','Разработка ботов','ИИ/AI боты','Продвижение','Mini App','Перенос в MAX','Другое'],
+    datasets: [{
+      data: [455, 237, 157, 113, 85, 62, 91],
+      backgroundColor: C.slice(0,7),
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    cutout: '58%',
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } } }
+  }
+});
+
+// ═══ INDIE CHARTS (lazy) ═══
+function initIndieCharts() {
+  // Price distribution
+  new Chart(document.getElementById('indiePriceChart'), {
+    type: 'bar',
+    data: {
+      labels: ['< 1к','1–2к','2–3к','3–5к','5–10к','10–20к','20–50к','50к+'],
+      datasets: [{ data: [286,154,143,227,128,126,43,10], backgroundColor: C.slice(0,8).map(c=>c+'99'), borderColor: C.slice(0,8), borderWidth: 1.5, borderRadius: 6 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+  });
+  // Cities
+  new Chart(document.getElementById('indieCityChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Москва','СПб','Казань','Краснодар','Нижний Новгород','Ростов-на-Дону','Тюмень','Самара','Уфа','Новосибирск','Севастополь','Екатеринбург','Пермь','Красноярск','Нижний Тагил'],
+      datasets: [{ data: [293,121,71,55,43,33,33,32,31,28,20,19,18,18,15], backgroundColor:'#3b82f699', borderColor:'#3b82f6', borderWidth:1.5, borderRadius:4 }]
+    },
+    options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:gridColor}},y:{grid:{display:false},ticks:{font:{size:11}}}} }
+  });
+  // Platforms
+  new Chart(document.getElementById('indiePlatformChart'), {
+    type: 'bar',
+    data: {
+      labels: ['MAX','Telegram','VK','Под ключ','ИИ/AI','Сайты','Mini App','CRM'],
+      datasets: [{ data:[808,692,373,310,164,98,46,24], backgroundColor:['#ec489999','#3b82f699','#6366f199','#10b98199','#8b5cf699','#f59e0b99','#06b6d499','#ef444499'], borderColor:['#ec4899','#3b82f6','#6366f1','#10b981','#8b5cf6','#f59e0b','#06b6d4','#ef4444'], borderWidth:1.5, borderRadius:6 }]
+    },
+    options: { plugins:{legend:{display:false}}, scales:{y:{grid:{color:gridColor}},x:{grid:{display:false}}} }
+  });
+  // Price by category
+  new Chart(document.getElementById('indiePriceCatChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Перенос в MAX','Mini App','Чат-боты','ИИ/AI','Разработка','Продвижение'],
+      datasets: [
+        { label:'Медиана', data:[7500,5000,3000,3000,3000,2990], backgroundColor:'#06b6d499', borderColor:'#06b6d4', borderWidth:1.5, borderRadius:6 },
+        { label:'Средняя', data:[10186,9616,7841,7562,3605,6766], backgroundColor:'#8b5cf699', borderColor:'#8b5cf6', borderWidth:1.5, borderRadius:6 }
+      ]
+    },
+    options: { plugins:{legend:{labels:{boxWidth:12,padding:14,font:{size:12}}}}, scales:{y:{grid:{color:gridColor},ticks:{callback:v=>v.toLocaleString('ru')+' ₽'}},x:{grid:{display:false}}} }
+  });
+
+  // Indie table
+  const listings = [
+    {t:'Разработка, создание приложений/miniapp в макс/тг',p:'150 000 ₽',s:'КиберСистем',c:'Москва'},
+    {t:'Чат-бот под ключ (MAX, Telegram, VK, Avito)',p:'100 000 ₽',s:'stable solution',c:'Москва'},
+    {t:'Разработка Чат-ботов с AI под ключ',p:'90 000 ₽',s:'—',c:'Москва'},
+    {t:'Продвижение сайтов. SEO. Яндекс Директ',p:'70 000 ₽',s:'—',c:'Москва'},
+    {t:'Разработка телеграм и MAX ботов любой сложности',p:'50 000 ₽',s:'—',c:'Самара'},
+    {t:'Автоматизации, разработка сайтов, Telegram боты',p:'50 000 ₽',s:'—',c:'Казань'},
+    {t:'Создание чат-ботов Telegram, Max, VK под ключ',p:'45 000 ₽',s:'—',c:'СПб'},
+    {t:'Перенос / миграция бота из telegram в max',p:'40 000 ₽',s:'—',c:'Москва'},
+    {t:'Чат-бот для Telegram и MAX — под ключ за 3 дня',p:'35 000 ₽',s:'Даниил Нарыжный',c:'Москва'},
+    {t:'Разработка Телеграм и Max ботов / Mini App',p:'30 000 ₽',s:'—',c:'Москва'},
+    {t:'Боты для MAX, VK, Telegram и автоматизация',p:'25 000 ₽',s:'Кирилл',c:'Москва'},
+    {t:'Разработка Чат-ботов Мини Апп. Телеграм, вк, MAX',p:'22 000 ₽',s:'HELPATCH',c:'Москва'},
+    {t:'Разработка VK/Telegram/MAX ботов, сайты под ключ',p:'20 000 ₽',s:'—',c:'Москва'},
+    {t:'Бот для бизнеса TG/MAX: заявки, воронка',p:'15 000 ₽',s:'Руслан Макаров',c:'Волгоград'},
+    {t:'Продвижение и реклама каналов в MAX',p:'15 000 ₽',s:'—',c:'Ростов-на-Дону'},
+    {t:'Чат-бот для приёма заказов в тг/Макс',p:'15 000 ₽',s:'—',c:'Серов'},
+    {t:'Разработка чат-ботов под ключ',p:'10 000 ₽',s:'Дмитрий',c:'Москва'},
+    {t:'Разработка Телеграм и Max ботов под ключ',p:'8 000 ₽',s:'Марсель',c:'СПб'},
+    {t:'Разработка Телеграм и MAX ботов / Mini App',p:'7 900 ₽',s:'Никита',c:'Москва'},
+    {t:'Разработка ботов для MAX',p:'7 000 ₽',s:'—',c:'Тюмень'},
+  ];
+  const tbody = document.getElementById('indieTableBody');
+  listings.forEach((l,i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="color:var(--text3);font-weight:500">${i+1}</td><td><span class="truncate">${l.t}</span></td><td><span class="price-tag">${l.p}</span></td><td><span class="seller-name">${l.s}</span></td><td style="color:var(--text2)">${l.c}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══ STUDIO CHARTS (lazy) ═══
+function initStudioCharts() {
+  new Chart(document.getElementById('studiosPriceChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Простой (сценарный)','Средний (+ CRM)','Сложный (AI + ERP + Mini App)'],
+      datasets: [{
+        label: 'Диапазон стоимости',
+        data: [75000, 250000, 500000],
+        backgroundColor: ['#10b98199','#f59e0b99','#ef444499'],
+        borderColor: ['#10b981','#f59e0b','#ef4444'],
+        borderWidth: 1.5, borderRadius: 8,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: gridColor }, ticks: { callback: v => (v/1000)+'к ₽', font: { size: 12 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+  // Specialization radar
+  new Chart(document.getElementById('studiosSpecChart'), {
+    type: 'polarArea',
+    data: {
+      labels: ['CRM-интеграция','AI/ML','Mini App','Миграция TG→MAX','Платёжные шлюзы','1С/ERP','Госуслуги'],
+      datasets: [{
+        data: [8, 4, 5, 3, 5, 4, 1],
+        backgroundColor: C.slice(0,7).map(c=>c+'88'),
+        borderColor: C.slice(0,7),
+        borderWidth: 1.5,
+      }]
+    },
+    options: {
+      plugins: { legend: { position: 'right', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } } },
+      scales: { r: { grid: { color: gridColor }, ticks: { display: false } } }
+    }
+  });
+}
+
+// ═══ NOCODE CHART (lazy) ═══
+function initNocodeCharts() {
+  new Chart(document.getElementById('nocodePriceChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Smartbot','WatBot','BotHelp','Salebot','ChatForma','Botmother','IntellectDialog','Chat2Desk','Альбато'],
+      datasets: [{
+        label: '₽/мес',
+        data: [990, 990, 1599, 1990, 2000, 2899, null, null, null],
+        backgroundColor: C.slice(0,9).map(c=>c+'99'),
+        borderColor: C.slice(0,9),
+        borderWidth: 1.5, borderRadius: 6,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: gridColor }, ticks: { callback: v => v.toLocaleString('ru')+' ₽' } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// ═══ MAX ONLY CHARTS (lazy) ═══
+function initMaxOnlyCharts() {
+  new Chart(document.getElementById('maxOnlyPriceChart'), {
+    type: 'bar',
+    data: {
+      labels: ['< 1к','1–2к','2–3к','3–5к','5–10к','10–20к','20–50к','50к+'],
+      datasets: [{ data: [20,11,23,32,34,39,3,5], backgroundColor: C.slice(0,8).map(c=>c+'99'), borderColor: C.slice(0,8), borderWidth: 1.5, borderRadius: 6 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+  });
+  new Chart(document.getElementById('maxOnlyCityChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Москва','Казань','СПб','Краснодар','Красноярск','Воронеж','Тюмень','Киров','Белгород','Губкин'],
+      datasets: [{ data: [59,27,11,10,5,4,4,3,3,3], backgroundColor:'#10b98199', borderColor:'#10b981', borderWidth:1.5, borderRadius:4 }]
+    },
+    options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:gridColor}},y:{grid:{display:false},ticks:{font:{size:11}}}} }
+  });
+  new Chart(document.getElementById('maxOnlyCompareChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Медиана','Средняя','Макс. цена'],
+      datasets: [
+        { label:'Только MAX', data:[5000,11426,150000], backgroundColor:'#10b98199', borderColor:'#10b981', borderWidth:1.5, borderRadius:6 },
+        { label:'MAX + Telegram', data:[3000,7202,150000], backgroundColor:'#3b82f699', borderColor:'#3b82f6', borderWidth:1.5, borderRadius:6 }
+      ]
+    },
+    options: {
+      plugins: { legend: { labels: { boxWidth:12, padding:16, font:{size:12} } } },
+      scales: {
+        y: { type:'logarithmic', grid:{color:gridColor}, ticks:{font:{size:11}, callback: v => v>=1000?(v/1000)+'к ₽':v+' ₽'} },
+        x: { grid:{display:false}, ticks:{font:{size:12}} }
+      }
+    }
+  });
+  const maxOnlyListings = [
+    {t:'Настройка каналов и чат-ботов в «Max»',p:'от 30 000 ₽',s:'—',c:'Севастополь'},
+    {t:'Разработка ботов и MiniApp в MAX для бизнеса',p:'20 000 ₽',s:'—',c:'Воронеж'},
+    {t:'Чат-боты и воронки продаж VK / MAX',p:'15 000 ₽',s:'—',c:'Москва'},
+    {t:'Продвижение и реклама каналов в MAX',p:'15 000 ₽',s:'—',c:'Москва'},
+    {t:'Чат бот Макс / ВК',p:'15 000 ₽',s:'—',c:'СПб'},
+    {t:'MAX под ключ — Создание, ведение, продвижение',p:'12 000 ₽',s:'—',c:'Москва'},
+    {t:'Разработка ботов в мессенджере Макс',p:'от 10 000 ₽',s:'—',c:'Москва'},
+    {t:'Создание ботов и автоматизаций Макс',p:'от 10 000 ₽',s:'—',c:'Тюмень'},
+    {t:'Создание бота в MAX',p:'от 10 000 ₽',s:'—',c:'СПб'},
+    {t:'Разработка / Перенос чат-бота для MAX',p:'от 8 000 ₽',s:'—',c:'Москва'},
+    {t:'Разработка и перенос бота в MAX под ключ',p:'от 7 500 ₽',s:'ИП Федь Е.В.',c:'Казань'},
+    {t:'Создание / Перенос чат-бота для MAX',p:'от 7 000 ₽',s:'Вадим Лебедев',c:'Москва'},
+    {t:'Разработка чат-бота для MAX и ВК — под ключ',p:'от 7 000 ₽',s:'—',c:'Казань'},
+    {t:'Разработка чат-ботов в MAX',p:'от 7 000 ₽',s:'—',c:'Краснодар'},
+    {t:'MAX-разработка: Чат-боты под ключ',p:'от 7 000 ₽',s:'—',c:'СПб'},
+    {t:'Бот для MAX — разработка и доработка',p:'от 5 000 ₽',s:'—',c:'Красноярск'},
+    {t:'Чат-бот MAX',p:'от 5 000 ₽',s:'—',c:'Москва'},
+    {t:'Коммерческие боты в мессенджере «Max»',p:'от 5 000 ₽',s:'—',c:'Ярославль'},
+    {t:'Разработка ботов в MAX',p:'от 5 000 ₽',s:'—',c:'Губкин'},
+    {t:'Разработка бота в Max',p:'от 5 000 ₽',s:'Пользователь',c:'Москва'},
+  ];
+  const tbody = document.getElementById('maxOnlyTableBody');
+  maxOnlyListings.forEach((l,i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="color:var(--text3);font-weight:500">${i+1}</td><td><span class="truncate">${l.t}</span></td><td><span class="price-tag">${l.p}</span></td><td><span class="seller-name">${l.s}</span></td><td style="color:var(--text2)">${l.c}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
